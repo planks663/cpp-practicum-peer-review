@@ -4,7 +4,6 @@
 #include <sstream>
 #include <string_view>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
@@ -46,7 +45,7 @@ public:
             return lhs.GetDomainName() < rhs.GetDomainName();
         });
         auto it = unique(forbidden_domains_.begin(), forbidden_domains_.end(), [] (const Domain& lhs, const Domain& rhs) {
-            return (lhs == rhs || rhs.IsSubdomain(lhs) || lhs.IsSubdomain(rhs));
+            return (rhs.IsSubdomain(lhs) || lhs.IsSubdomain(rhs));
         });
         forbidden_domains_.erase(it, forbidden_domains_.end());
     }
@@ -57,13 +56,12 @@ public:
                               [] (const Domain& lhs, const Domain& rhs) {
             return (lhs.GetDomainName() < rhs.GetDomainName());
         });
+
         if (it == forbidden_domains_.begin()) {
             return false;
         }
-        if ((it - 1)->IsSubdomain(domain)) {
-            return true;
-        }
-        return false;
+
+        return (it - 1)->IsSubdomain(domain);
     }
 
 private:
